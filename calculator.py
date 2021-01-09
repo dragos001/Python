@@ -1,45 +1,90 @@
-import ply.lex as lex
-import ply.yacc as yacc
-import sys
+import re
+from operator import itemgetter
+from collections import deque
+from jinja2.exceptions import TemplateSyntaxError
+from jinja2.utils import LRUCache
 
-tokens = [
+_lexer_cache = LRUCache(50)
 
-    'INT',
-    'FLOAT',
-    'NAME',
-    'PLUS',
-    'MINUS',
-    'DIVIDE',
-    'MULTIPLY',
-    'EQUALS'
+whitespace_re = re.compile(r'\s+', re.U)
+string_re = re.compile(r"('([^'\\]*(?:\\.[^'\\]*)*)'"
+                       r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
+integer_re = re.compile(r'\d+')
+name_re = re.compile(r'\b[a-zA-Z_][a-zA-Z0-9_]*\b')
+float_re = re.compile(r'(?<!\.)\d+\.\d+')
+newline_re = re.compile(r'(\r\n|\r|\n)')
 
-]
+operators = {
+    '+':            'add',
+    '-':            'sub',
+    '/':            'div',
+    '//':           'floordiv',
+    '*':            'mul',
+    '%':            'mod',
+    '**':           'pow',
+    '~':            'tilde',
+    '[':            'lbracket',
+    ']':            'rbracket',
+    '(':            'lparen',
+    ')':            'rparen',
+    '{':            'lbrace',
+    '}':            'rbrace',
+    '==':           'eq',
+    '!=':           'ne',
+    '>':            'gt',
+    '>=':           'gteq',
+    '<':            'lt',
+    '<=':           'lteq',
+    '=':            'assign',
+    '.':            'dot',
+    ':':            'colon',
+    '|':            'pipe',
+    ',':            'comma',
+    ';':            'semicolon'
+}
 
-t_PLUS = r'\+'
-t_MINUS = r'\-'
-t_MULTIPLY = r'\*'
-t_DIVIDE = r'\/'
-t_EQUALS = r'\='
+reverse_operators = dict([(v, k) for k, v in operators.iteritems()])
+assert len(operators) == len(reverse_operators), 'operators dropped'
+operator_re = re.compile('(%s)' % '|'.join(re.escape(x) for x in
+                         sorted(operators, key=lambda x: -len(x))))
 
-t_ignore = r' '
+def count_newlines(value)
+ return len(newline_re.findall(value))
 
-def t_FLOAT(t):
-    r'\d+\.\d+'
-    t.value = float(t.value)
-    return t
+ class Failure(object)
+  
+def __init__(self, message, cls=TemplateSyntaxError):
+        self.message = message
+        self.error_class = cls
 
-def t_INT(t):
-    r'\d+'
-    t.value = int(t.value)
-    return t
+    def __call__(self, lineno, filename):
+        raise self.error_class(self.message, lineno, filename)
 
-def t_NAME(t):
-    r'[a-zA-Z_][a-zA-Z_0-9]*'
-    t.type = 'NAME'
-    return t
+class Token(tuple)
 
-def t_error(t):
-    print("Illegal characters!")
-    t.lexer.skip(1)
+ _slots_ = ()
+    lineno, type, value = (property(itemgetter(x)) for x in range(3))
 
-lexer = lex.lex()
+    def __new__(cls, lineno, type, value):
+        return tuple.__new__(cls, (lineno, intern(str(type)), value))
+
+    def __str__(self):
+        if self.type in reverse_operators:
+            return reverse_operators[self.type]
+        elif self.type is 'name':
+            return self.value
+        return self.type
+    
+    def test(self, expr)
+     
+    if self.type == expr:
+            return True
+        elif ':' in expr:
+            return expr.split(':', 1) == [self.type, self.value]
+        return False
+
+     if self.type == expr:
+            return True
+        elif ':' in expr:
+            return expr.split(':', 1) == [self.type, self.value]
+        return False
