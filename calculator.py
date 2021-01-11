@@ -25,7 +25,6 @@ functions = {
 
 
 def solve(raw_exp):
-    """Return the solution of the provided raw expression"""
     postfix_exp = _to_postfix(_tokenize_expression(raw_exp))
     number_stack = []
 
