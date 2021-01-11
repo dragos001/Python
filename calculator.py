@@ -53,3 +53,32 @@ def _is_number(s):
         return True
     except ValueError:
         return False
+    
+def _to_postfix(infix_exp):
+    postfix_exp, op_stack = [], []
+
+    for token in infix_exp:
+        if _is_number(token):
+            postfix_exp.append(token)
+        elif token in operators:
+            while ((len(op_stack) > 0 and op_stack[-1] in operators) and
+                    ((token != '^' and
+                        operators[token][0] <= operators[op_stack[-1]][0]) or
+                    (token == '^' and
+                        operators[token][0] < operators[op_stack[-1]][0]))):
+                postfix_exp.append(op_stack.pop())
+            op_stack.append(token)
+        elif token in functions:
+            op_stack.append(token)
+        elif token == '(':
+            op_stack.append(token)
+        elif token == ')':
+            while len(op_stack) > 0 and op_stack[-1] != '(':
+                postfix_exp.append(op_stack.pop())
+            op_stack.pop()
+            if len(op_stack) > 0 and op_stack[-1] in functions:
+                postfix_exp.append(op_stack.pop())
+    while len(op_stack) > 0:
+        postfix_exp.append(op_stack.pop())
+
+    return postfix_exp
