@@ -38,3 +38,19 @@ def solve(raw_exp):
         elif token in functions:
             if functions[token][0] == 1:
                 number_stack.append(functions[token][1](number_stack.pop()))
+
+
+    solution = round(number_stack.pop(), 15)
+
+    
+    if solution == -0:
+        solution += 0
+
+    return solution
+
+def _is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
