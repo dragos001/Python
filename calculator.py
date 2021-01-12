@@ -27,28 +27,32 @@ functions = {
 def rezolvare(raw_exp):
 
 #Returneaza solutia
+    try:
+        postfix_exp = _postfixare_(_tokenizare_expresie(raw_exp))
+        number_stack = []
 
-    postfix_exp = _postfixare_(_tokenizare_expresie(raw_exp))
-    number_stack = []
-
-    for token in postfix_exp:
-        if _is_number(token):
-            number_stack.append(float(token))
-        elif token in operators:
-            temp = number_stack.pop()
-            number_stack.append(operators[token][1](number_stack.pop(), temp))
-        elif token in functions:
-            if functions[token][0] == 1:
-                number_stack.append(functions[token][1](number_stack.pop()))
+        for token in postfix_exp:
+            if _is_number(token):
+                number_stack.append(float(token))
+            elif token in operators:
+                temp = number_stack.pop()
+                number_stack.append(operators[token][1](number_stack.pop(), temp))
+            elif token in functions:
+                if functions[token][0] == 1:
+                    number_stack.append(functions[token][1](number_stack.pop()))
 
 # Solutia va fi ultimul nr ramas in stiva
-    solution = round(number_stack.pop(), 15)
+        solution = round(number_stack.pop(), 15)
 
 #Remediaza eroarea de la round +/- 0  
-    if solution == -0:
-        solution += 0
+        if solution == -0:
+            solution += 0
 
-    return solution
+        return solution
+    except Exception:
+        print("Eroare!")
+        exit()
+
 
 
 
@@ -122,7 +126,6 @@ def _is_number(s):
     except ValueError:
         return False
 
-
 if __name__ == '__main__':
     running = True
 
@@ -132,9 +135,3 @@ if __name__ == '__main__':
             running = False
         else:
             print(rezolvare(user_input))
-
-
-#Bibliografie: https://www3.cs.stonybrook.edu/~cse214/lecture_slides/unit3.pdf
-#              https://www.w3schools.com/python/python_lambda.asp?fbclid=IwAR1-FEEXUqT0FLdJmopRjgjIbko2uGnyB8JYBu65fWoXmFfOHURWMkv-cGo
-#              https://www.youtube.com/watch?v=PAceaOSnxQs&fbclid=IwAR3av9oUIMyW_bhb2qD_j5qcLFsmZG0gkOpONyBag-Gw5ne-VzX5aMZLxT4&ab_channel=Jenny%27slecturesCS%2FITNET%26JRF
-#              https://docs.python.org/3/library/tokenize.html?fbclid=IwAR3-wnc3Arr39viBeYj17Xbkd0BfKfdja1xhnDvVzSJtoOPmQh8M3PQ85Oo  
