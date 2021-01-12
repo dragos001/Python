@@ -24,8 +24,11 @@ functions = {
 }
 
 
-def solve(raw_exp):
-    postfix_exp = _to_postfix(_tokenize_expression(raw_exp))
+def rezolvare(raw_exp):
+
+#Returneaza solutia
+
+    postfix_exp = _postfixare_(_tokenizare_expresie(raw_exp))
     number_stack = []
 
     for token in postfix_exp:
@@ -38,23 +41,51 @@ def solve(raw_exp):
             if functions[token][0] == 1:
                 number_stack.append(functions[token][1](number_stack.pop()))
 
-
+# Solutia va fi ultimul nr ramas in stiva
     solution = round(number_stack.pop(), 15)
 
-    
+#Remediaza eroarea de la round +/- 0  
     if solution == -0:
         solution += 0
 
     return solution
 
-def _is_number(s):
-    try:
-        float(s)
-        return True
-    except ValueError:
-        return False
+
+
+def _tokenizare_expresie(raw_exp):
+    tokenized_exp = []
+    next_num, next_alpha = '', ''
+
+    for char in raw_exp:
+        if _is_number(char) or char == '.':
+            if len(next_alpha) > 0:
+                tokenized_exp.append(next_alpha)
+                next_alpha = ''
+            next_num += char
+        elif char.isalpha():
+            if len(next_num) > 0:
+                tokenized_exp.append(next_num)
+                next_num = ''
+            next_alpha += char
+        elif char in operators or char == '(' or char == ')':
+            if len(next_num) > 0:
+                tokenized_exp.append(next_num)
+                next_num = ''
+            elif len(next_alpha) > 0:
+                tokenized_exp.append(next_alpha)
+                next_alpha = ''
+            tokenized_exp.append(char)
+
     
-def _to_postfix(infix_exp):
+    if len(next_num) > 0:
+        tokenized_exp.append(next_num)
+    if len(next_alpha) > 0:
+        tokenized_exp.append(next_alpha)
+
+    return tokenized_exp
+
+
+def _postfixare_(infix_exp):
     postfix_exp, op_stack = [], []
 
     for token in infix_exp:
@@ -82,3 +113,28 @@ def _to_postfix(infix_exp):
         postfix_exp.append(op_stack.pop())
 
     return postfix_exp
+
+
+def _is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
+
+if __name__ == '__main__':
+    running = True
+
+    while running:
+        user_input = input('Calcul:')
+        if user_input == 'exit':
+            running = False
+        else:
+            print(rezolvare(user_input))
+
+
+#Bibliografie: https://www3.cs.stonybrook.edu/~cse214/lecture_slides/unit3.pdf
+#              https://www.w3schools.com/python/python_lambda.asp?fbclid=IwAR1-FEEXUqT0FLdJmopRjgjIbko2uGnyB8JYBu65fWoXmFfOHURWMkv-cGo
+#              https://www.youtube.com/watch?v=PAceaOSnxQs&fbclid=IwAR3av9oUIMyW_bhb2qD_j5qcLFsmZG0gkOpONyBag-Gw5ne-VzX5aMZLxT4&ab_channel=Jenny%27slecturesCS%2FITNET%26JRF
+#              https://docs.python.org/3/library/tokenize.html?fbclid=IwAR3-wnc3Arr39viBeYj17Xbkd0BfKfdja1xhnDvVzSJtoOPmQh8M3PQ85Oo  
